@@ -1,10 +1,11 @@
+using CommifyTaxCalculatorAPI.Data;
 using CommifyTaxCalculatorAPI.Services;
-using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
-
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.SetupDatabase(builder.Configuration.GetConnectionString("TaxCalculatorContextSQLite"));
+builder.Services.SetupDatabase(
+    builder.Configuration.GetConnectionString("TaxCalculatorContextSQLite")
+);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -16,6 +17,7 @@ builder.Services.AddOpenApiDocument(config =>
 });
 
 builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<ITaxCalculatorDatabaseContext, TaxCalculatorDatabaseContext>();
 
 var app = builder.Build();
 

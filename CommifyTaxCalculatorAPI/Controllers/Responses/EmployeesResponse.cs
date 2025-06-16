@@ -1,4 +1,1 @@
-public class EmployeesResponse
-{
-    
-}
+public class EmployeesResponse { }
