@@ -16,8 +16,10 @@ public class EmployeesController : ControllerBase
     }
 
     [HttpGet(Name = "Employees")]
-    public IEnumerable<EmployeeDTO> Get()
+    public OkObjectResult Get(CancellationToken cancellationToken)
     {
-        return _employeeService.GetEmployees();
+        return Ok(_employeeService.GetEmployees(cancellationToken));
     }
+
+    
 }
