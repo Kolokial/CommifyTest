@@ -99,7 +99,7 @@ public static class DataSeedHelpers
                 GrossAnnualSalary = 35000.0M,
                 GrossMonthlySalary = 2916.67M,
                 MonthlyTaxPaid = 750.0M,
-                NetAnnualSalary = 29000.0M,
+                NetAnnualSalary = 26000.0M,
                 NetMonthlySalary = 2166.67M,
             },
             new EmployeeTaxDTO
