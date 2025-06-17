@@ -1,3 +1,5 @@
+namespace CommifyTaxCalculatorAPI.Responses;
+
 public class EmployeeTaxResponse
 {
     public decimal GrossAnnualSalary { get; set; }

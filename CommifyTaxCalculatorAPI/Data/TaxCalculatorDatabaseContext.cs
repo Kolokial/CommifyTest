@@ -9,10 +9,14 @@ public class TaxCalculatorDatabaseContext : DbContext, ITaxCalculatorDatabaseCon
     public DbSet<TaxBand> TaxBand { get; set; }
 
     public TaxCalculatorDatabaseContext(DbContextOptions<TaxCalculatorDatabaseContext> options)
-        : base(options) { }
+        : base(options)
+    {
+      
+         }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        /* Typically these entities would be setup via a script upon app installation and not as part the app startup */
         base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<TaxBand>(b =>
             b.HasData(

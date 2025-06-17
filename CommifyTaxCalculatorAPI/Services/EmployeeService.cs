@@ -23,20 +23,12 @@ public class EmployeeService
         return (await _dbContext.Employee.ToListAsync(cancellationToken)).Select(x => x.Adapt<EmployeeDTO>());
     }
 
-    public async Task<EmployeeTaxDTO> GetEmployeeTaxRate(int employeeId, CancellationToken ct)
+    public async Task<EmployeeTaxDTO> GetEmployeeTaxBill(int employeeId, CancellationToken ct)
     {
-        var employee = _dbContext.Employee.FirstOrDefault(x => x.EmployeeId == employeeId);
-
-        if (employee == null)
-        {
-            throw new ArgumentException($"Employee Id '{employeeId}' does not exist!");
-        }
-
+        var employee = await GetEmployee(employeeId);
         var taxBands = await _dbContext.TaxBand.ToListAsync(ct);
 
-        var employeeTaxBands = taxBands
-            .Where(x => employee.EmployeeAnnualSalary >= x.TaxBandRangeStart)
-            .ToList();
+        var employeeTaxBands = taxBands.Where(x => employee.EmployeeAnnualSalary >= x.TaxBandRangeStart).ToList();
         var annualTaxAmount = GetNetSalary(employee.EmployeeAnnualSalary, employeeTaxBands);
         var netAnnualSalary = employee.EmployeeAnnualSalary - annualTaxAmount;
         return new EmployeeTaxDTO()
@@ -51,11 +43,21 @@ public class EmployeeService
         };
     }
 
+    private async Task<Employee> GetEmployee(int employeeId)
+    {
+        var employee = await _dbContext.Employee.FirstOrDefaultAsync(x => x.EmployeeId == employeeId);
+
+        if (employee == null)
+        {
+            throw new ArgumentException($"Employee Id '{employeeId}' does not exist!");
+        }
+        return employee;
+    }
+
     private decimal GetNetSalary(decimal salary, List<TaxBand> taxBands)
     {
         taxBands.Sort((tb1, tb2) => tb2.TaxBandRangeStart.CompareTo(tb2.TaxBandRangeStart));
         decimal taxBill = 0;
-        Console.WriteLine(JsonSerializer.Serialize(taxBands));
 
         foreach (var taxBand in taxBands)
         {
@@ -64,18 +66,26 @@ public class EmployeeService
             if (salary >= bandRangeEnd)
             {
                 taxBill += (bandRangeEnd - bandRangeStart) * taxBand.TaxBandRate;
-                Console.WriteLine(
-                    $"Salary > tax band {taxBand.TaxBandName}, current Tax bill {taxBill}"
-                );
+                Console.WriteLine($"Salary > tax band {taxBand.TaxBandName}, current Tax bill {taxBill}");
             }
             else
             {
                 taxBill += (salary - bandRangeStart) * taxBand.TaxBandRate;
-                Console.WriteLine(
-                    $"Salary < tax band {taxBand.TaxBandName}, current Tax bill {taxBill}"
-                );
+                Console.WriteLine($"Salary < tax band {taxBand.TaxBandName}, current Tax bill {taxBill}");
             }
         }
         return taxBill;
+    }
+
+    public async Task UpdateEmployeeSalary(int employeeId, decimal newSalary, CancellationToken ct)
+    {
+        var employee = await GetEmployee(employeeId);
+
+        if (newSalary < 0)
+        {
+            throw new Exception($"Salary cannot be negative number. {newSalary}");
+        }
+        employee.EmployeeAnnualSalary = newSalary;
+        await _dbContext.SaveChangesAsync(ct);
     }
 }

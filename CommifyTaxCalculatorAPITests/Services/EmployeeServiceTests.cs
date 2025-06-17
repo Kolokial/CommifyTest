@@ -1,26 +1,21 @@
 using System.Text.Json;
-using CommifyTaxCalculatorAPI.Controllers;
-using CommifyTaxCalculatorAPI.DTOs;
-using CommifyTaxCalculatorAPI.Models;
 using CommifyTaxCalculatorAPI.Services;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.EntityFrameworkCore;
-using NJsonSchema.Yaml;
 
 public class EmployeeServiceTests
 {
     private EmployeeService _service;
+    private MockTaxCalculatorDatabaseContext _mockDb;
 
     public EmployeeServiceTests()
-        : base()
     {
         var options = new DbContextOptionsBuilder<MockTaxCalculatorDatabaseContext>()
             .UseInMemoryDatabase(databaseName: "TestRegistrationDb" + DateTime.Now.Ticks)
             .Options;
 
-        var mockDb = new MockTaxCalculatorDatabaseContext(options);
-        mockDb.Database.EnsureCreated();
-        _service = new EmployeeService(mockDb);
+        _mockDb = new MockTaxCalculatorDatabaseContext(options);
+        _mockDb.Database.EnsureCreated();
+        _service = new EmployeeService(_mockDb);
     }
 
     [Fact]
@@ -29,9 +24,10 @@ public class EmployeeServiceTests
         // Arrange
 
         // Act &  Assert
-        await Assert.ThrowsAsync<ArgumentException>(async () =>
-            await _service.GetEmployeeTaxRate(-1, CancellationToken.None)
+        var exception = await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _service.GetEmployeeTaxBill(-1, CancellationToken.None)
         );
+        Assert.Equal("Employee Id '-1' does not exist!", exception.Message);
     }
 
     [Fact]
@@ -46,14 +42,51 @@ public class EmployeeServiceTests
         var employeeTaxBill = employeesTaxes[index];
 
         // Act
-        var result = await _service.GetEmployeeTaxRate(
-            employee.EmployeeId,
-            CancellationToken.None
-        );
+        var result = await _service.GetEmployeeTaxBill(employee.EmployeeId, CancellationToken.None);
         Console.WriteLine(JsonSerializer.Serialize(result));
         Console.WriteLine(JsonSerializer.Serialize(employeeTaxBill));
         // Assert
         Assert.IsType<EmployeeTaxDTO>(result);
         Assert.Equivalent(result, employeeTaxBill);
+    }
+
+    [Fact]
+    public async Task UpdateEmployeeSalary_SendInvalidEmployeeId_Throws()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(async () =>
+            await _service.UpdateEmployeeSalary(-1, 1000, CancellationToken.None)
+        );
+        Assert.Equal("Employee Id '-1' does not exist!", exception.Message);
+    }
+
+    [Fact]
+    public async Task UpdateEmployeeSalary_SendNegativeSalary_Throws()
+    {
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<Exception>(async () =>
+            await _service.UpdateEmployeeSalary(1, -1000, CancellationToken.None)
+        );
+        Assert.Equal("Salary cannot be negative number. -1000", exception.Message);
+    }
+
+    [Fact]
+    public async Task UpdateEmployeeSalary_SendCorrectIdAndPositiveSalary_EmployeeUpdated()
+    {
+        // Arrange
+        var employees = DataSeedHelpers.GetEmployees();
+        Random r = new Random();
+        var index = r.Next(1, employees.Count);
+        var employee = employees[index];
+
+        // Act
+        await _service.UpdateEmployeeSalary(
+            employee.EmployeeId,
+            employee.EmployeeAnnualSalary - 1000,
+            CancellationToken.None
+        );
+
+        var dbEmployee = _mockDb.Employee.Single(x => x.EmployeeId == employee.EmployeeId);
+        Assert.Equal(dbEmployee.EmployeeAnnualSalary, employee.EmployeeAnnualSalary - 1000);
     }
 }

@@ -7,4 +7,6 @@ public interface ITaxCalculatorDatabaseContext
 {
     public DbSet<Employee> Employee { get; set; }
     public DbSet<TaxBand> TaxBand { get; set; }
+
+    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
