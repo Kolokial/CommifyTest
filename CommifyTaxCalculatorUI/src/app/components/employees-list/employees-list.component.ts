@@ -37,16 +37,18 @@ export class EmployeesListComponent implements OnInit {
     'employeeAnnualSalary',
   ];
   public searchValue: Subject<string> = new Subject<string>();
+  public length: number = 0;
+  public pageSize: number = 4;
 
   constructor() {}
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-  }
+  ngAfterViewInit() {}
 
   public ngOnInit() {
     this._employeeApi.getEmployees().subscribe((x) => {
       this.dataSource = new MatTableDataSource<Employee>(x.result);
+      this.dataSource.paginator = this.paginator;
+      this.length = Math.floor(x.result.length / this.pageSize);
 
       this.dataSource.filterPredicate = (data: Employee, filter: string) => {
         return (

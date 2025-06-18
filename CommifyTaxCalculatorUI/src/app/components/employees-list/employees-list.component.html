@@ -33,4 +33,4 @@
     (click)="goToEmployeeDetailsScreen(row.employeeId)"
   ></tr>
 </table>
-<mat-paginator></mat-paginator>
+<mat-paginator #paginator [pageSize]="pageSize"></mat-paginator>
