@@ -12,4 +12,8 @@ export class EmployeesService {
   public getEmployees(): Observable<EmployeesResponse> {
     return this._http.get<EmployeesResponse>(`/api/Employees`);
   }
+
+  public getEmployeeTaxBill(id: number): Observable<void> {
+    return this._http.get<void>('/api/Employees/GetTaxBil');
+  }
 }
