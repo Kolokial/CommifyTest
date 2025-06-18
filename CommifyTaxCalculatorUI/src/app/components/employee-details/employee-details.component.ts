@@ -19,7 +19,7 @@ export class EmployeeDetailsComponent {
   ) {}
 
   ngOnInit() {
-    let employeeId = this._route.snapshot.paramMap.get('id');
+    let employeeId = this._route.snapshot.paramMap.get('employeeId');
 
     this._employeeService.getEmployeeTaxBill(Number(employeeId)).subscribe({
       next: (x) => {

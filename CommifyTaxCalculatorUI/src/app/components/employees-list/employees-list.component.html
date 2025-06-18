@@ -1,3 +1,13 @@
+<mat-form-field>
+  <mat-label>Search Employees</mat-label>
+  <input matInput type="text" (input)="filterEmployeeList($event)" />
+  @if (searchValue) {
+  <button matSuffix matIconButton aria-label="Clear">
+    <mat-icon>close</mat-icon>
+  </button>
+  }
+</mat-form-field>
+
 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
   <ng-container matColumnDef="employeeFirstName">
     <th mat-header-cell *matHeaderCellDef>First Name</th>
@@ -23,3 +33,4 @@
     (click)="goToEmployeeDetailsScreen(row.employeeId)"
   ></tr>
 </table>
+<mat-paginator></mat-paginator>
