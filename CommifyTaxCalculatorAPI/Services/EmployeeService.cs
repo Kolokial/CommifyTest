@@ -1,9 +1,7 @@
-using System.Collections.Immutable;
-using System.Text.Json;
-using System.Threading.Tasks;
 using CommifyTaxCalculatorAPI.Data;
 using CommifyTaxCalculatorAPI.DTOs;
 using CommifyTaxCalculatorAPI.Models;
+using CommifyTaxCalculatorAPI.Responses;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,34 +21,48 @@ public class EmployeeService
         return (await _dbContext.Employee.ToListAsync(cancellationToken)).Select(x => x.Adapt<EmployeeDTO>());
     }
 
-    public async Task<EmployeeTaxDTO> GetEmployeeTaxBill(int employeeId, CancellationToken ct)
+    public async Task<ReadEmployeeResponse> ReadEmployee(int employeeId, CancellationToken ct)
     {
-        var employee = await GetEmployee(employeeId);
+        var employee = await GetEmployee(employeeId, ct);
+        if (employee != null)
+        {
+            return new ReadEmployeeResponse() { IsSuccess = true, Result = employee.Adapt<EmployeeDTO>() };
+        }
+        return new ReadEmployeeResponse() { IsSuccess = false, Errors = GetInvalidEmployeeIdError(employeeId) };
+    }
+
+    public async Task<EmployeeTaxResponse> GetEmployeeTaxBill(int employeeId, CancellationToken ct)
+    {
+        var employee = await GetEmployee(employeeId, ct);
+        if (employee == null)
+        {
+            return new EmployeeTaxResponse() { IsSuccess = false, Errors = GetInvalidEmployeeIdError(employeeId) };
+        }
         var taxBands = await _dbContext.TaxBand.ToListAsync(ct);
 
         var employeeTaxBands = taxBands.Where(x => employee.EmployeeAnnualSalary >= x.TaxBandRangeStart).ToList();
         var annualTaxAmount = GetNetSalary(employee.EmployeeAnnualSalary, employeeTaxBands);
         var netAnnualSalary = employee.EmployeeAnnualSalary - annualTaxAmount;
-        return new EmployeeTaxDTO()
+        return new EmployeeTaxResponse()
         {
-            EmployeeId = employee.EmployeeId,
-            GrossAnnualSalary = employee.EmployeeAnnualSalary,
-            GrossMonthlySalary = Math.Round(employee.EmployeeAnnualSalary / 12, 2),
-            NetMonthlySalary = Math.Round(netAnnualSalary / 12, 2),
-            NetAnnualSalary = netAnnualSalary,
-            AnnualTaxPaid = annualTaxAmount,
-            MonthlyTaxPaid = Math.Round(annualTaxAmount / 12, 2),
+            IsSuccess = true,
+            Result = new EmployeeTaxDTO()
+            {
+                EmployeeId = employee.EmployeeId,
+                GrossAnnualSalary = employee.EmployeeAnnualSalary,
+                GrossMonthlySalary = Math.Round(employee.EmployeeAnnualSalary / 12, 2),
+                NetMonthlySalary = Math.Round(netAnnualSalary / 12, 2),
+                NetAnnualSalary = netAnnualSalary,
+                AnnualTaxPaid = annualTaxAmount,
+                MonthlyTaxPaid = Math.Round(annualTaxAmount / 12, 2),
+            },
         };
     }
 
-    private async Task<Employee> GetEmployee(int employeeId)
+    private async Task<Employee> GetEmployee(int employeeId, CancellationToken ct)
     {
-        var employee = await _dbContext.Employee.FirstOrDefaultAsync(x => x.EmployeeId == employeeId);
+        var employee = await _dbContext.Employee.FirstOrDefaultAsync(x => x.EmployeeId == employeeId, ct);
 
-        if (employee == null)
-        {
-            throw new ArgumentException($"Employee Id '{employeeId}' does not exist!");
-        }
         return employee;
     }
 
@@ -77,15 +89,36 @@ public class EmployeeService
         return taxBill;
     }
 
-    public async Task UpdateEmployeeSalary(int employeeId, decimal newSalary, CancellationToken ct)
+    public async Task<BaseResponse> UpdateEmployeeSalary(int employeeId, decimal newSalary, CancellationToken ct)
     {
-        var employee = await GetEmployee(employeeId);
+        var employee = await GetEmployee(employeeId, ct);
+        if (employee == null)
+        {
+            return new EmployeeTaxResponse() { IsSuccess = false, Errors = GetInvalidEmployeeIdError(employeeId) };
+        }
 
         if (newSalary < 0)
         {
-            throw new Exception($"Salary cannot be negative number. {newSalary}");
+            return new BaseResponse()
+            {
+                IsSuccess = false,
+                Errors = new List<ErrorResponse>
+                {
+                    new ErrorResponse() { ErrorMessage = $"Salary cannot be negative number. {newSalary}" },
+                },
+            };
         }
+
         employee.EmployeeAnnualSalary = newSalary;
         await _dbContext.SaveChangesAsync(ct);
+        return new BaseResponse() { IsSuccess = true };
+    }
+
+    private List<ErrorResponse> GetInvalidEmployeeIdError(int employeeId)
+    {
+        return new List<ErrorResponse>()
+        {
+            new ErrorResponse() { ErrorMessage = $"Employee Id '{employeeId}' does not exist!" },
+        };
     }
 }

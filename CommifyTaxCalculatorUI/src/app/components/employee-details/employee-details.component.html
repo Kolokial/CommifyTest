@@ -1,1 +1,43 @@
-<p>employee-details works!</p>
+@if(errors == null){
+<mat-card class="employee-details" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title-group *ngIf="employee">
+      <mat-card-title
+        >{{ employee.employeeFirstName }}
+        {{ employee.employeeLastName }}</mat-card-title
+      >
+      <mat-card-subtitle
+        ><b>Gross Annual Salary</b>
+        {{ employee.employeeAnnualSalary }}</mat-card-subtitle
+      >
+      <button (click)="openDialog()" matMiniFab aria-label="Edit salary">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </mat-card-title-group>
+  </mat-card-header>
+  <div class="divider"></div>
+  <mat-card-content>
+    <table class="employee-salary-data">
+      <tr *ngFor="let td of taxData">
+        <th>{{ td.name }}</th>
+        <td>{{ td.value }}</td>
+      </tr>
+    </table>
+  </mat-card-content>
+</mat-card>
+} @else {
+<mat-card class="employee-details" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title-group>
+      <mat-card-title>Whoops!</mat-card-title>
+      <mat-card-subtitle>Something went wrong...</mat-card-subtitle>
+    </mat-card-title-group>
+  </mat-card-header>
+  <div class="divider"></div>
+  <mat-card-content>
+    <ul>
+      <li *ngFor="let error of errors">{{ error.errorMessage }}</li>
+    </ul>
+  </mat-card-content>
+</mat-card>
+}

@@ -1,11 +1,8 @@
+using CommifyTaxCalculatorAPI.DTOs;
+
 namespace CommifyTaxCalculatorAPI.Responses;
 
-public class EmployeeTaxResponse
+public class EmployeeTaxResponse : BaseResponse, ISuccessfulResult<EmployeeTaxDTO>
 {
-    public decimal GrossAnnualSalary { get; set; }
-    public decimal GrossMonthlySalary { get; set; }
-    public decimal NetAnnualSalary { get; set; }
-    public decimal NetMonthlySalary { get; set; }
-    public decimal AnnualTaxPaid { get; set; }
-    public decimal MonthlyTaxPaid { get; set; }
+    public EmployeeTaxDTO Result { get; set; }
 }

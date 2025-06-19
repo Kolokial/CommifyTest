@@ -19,6 +19,7 @@ builder.Services.AddOpenApiDocument(config =>
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<IValidator<UpdateEmployeeSalaryRequest>, UpdateEmployeeSalaryRequestValidator>();
 builder.Services.AddScoped<IValidator<ReadTaxBillRequest>, ReadTaxBillRequestValidator>();
+builder.Services.AddScoped<IValidator<ReadEmployeeRequest>, ReadEmployeeRequestValidator>();
 builder.Services.AddScoped<ITaxCalculatorDatabaseContext, TaxCalculatorDatabaseContext>();
 
 var app = builder.Build();

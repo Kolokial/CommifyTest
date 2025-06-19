@@ -1,1 +1,25 @@
-<p>update-employee-salary works!</p>
+<h2 mat-dialog-title>Update Salary</h2>
+<mat-dialog-content class="mat-typography">
+  <p><b>Current Salary:</b> {{ currentSalary }}</p>
+  <form class="update-salary-form">
+    <mat-form-field class="full-width">
+      <mat-label>New Salary</mat-label>
+      <input [formControl]="salaryFormControl" type="number" matInput />
+      <mat-icon matSuffix>attach_money</mat-icon>
+      @if (salaryFormControl.hasError('negative')) {
+      <mat-error>Salary cannot be a negative number</mat-error>
+      }
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button matButton mat-dialog-close>Cancel</button>
+  <button
+    matButton
+    cdkFocusInitial
+    (click)="updateSalary()"
+    [disabled]="salaryFormControl.hasError('negative')"
+  >
+    Save
+  </button>
+</mat-dialog-actions>

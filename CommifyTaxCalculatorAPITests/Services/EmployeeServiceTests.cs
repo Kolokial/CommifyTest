@@ -1,4 +1,6 @@
+using System.Text;
 using System.Text.Json;
+using CommifyTaxCalculatorAPI.Responses;
 using CommifyTaxCalculatorAPI.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,13 +23,13 @@ public class EmployeeServiceTests
     [Fact]
     public async Task GetEmployeeTaxRate_SendInvalidEmployeeId_ShouldThrow()
     {
-        // Arrange
+        // Act
+        var result = await _service.GetEmployeeTaxBill(-1, CancellationToken.None);
 
-        // Act &  Assert
-        var exception = await Assert.ThrowsAsync<ArgumentException>(async () =>
-            await _service.GetEmployeeTaxBill(-1, CancellationToken.None)
-        );
-        Assert.Equal("Employee Id '-1' does not exist!", exception.Message);
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Single(result.Errors);
+        Assert.Equal("Employee Id '-1' does not exist!", result.Errors[0].ErrorMessage);
     }
 
     [Fact]
@@ -46,28 +48,32 @@ public class EmployeeServiceTests
         Console.WriteLine(JsonSerializer.Serialize(result));
         Console.WriteLine(JsonSerializer.Serialize(employeeTaxBill));
         // Assert
-        Assert.IsType<EmployeeTaxDTO>(result);
-        Assert.Equivalent(result, employeeTaxBill);
+        Assert.IsType<EmployeeTaxResponse>(result);
+        Assert.Equivalent(result.Result, employeeTaxBill);
     }
 
     [Fact]
     public async Task UpdateEmployeeSalary_SendInvalidEmployeeId_Throws()
     {
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentException>(async () =>
-            await _service.UpdateEmployeeSalary(-1, 1000, CancellationToken.None)
-        );
-        Assert.Equal("Employee Id '-1' does not exist!", exception.Message);
+        // Act
+        var result = await _service.UpdateEmployeeSalary(-1, 1000, CancellationToken.None);
+
+        // Assert
+        Assert.False(result.IsSuccess);
+        Assert.Single(result.Errors);
+        Assert.Equal("Employee Id '-1' does not exist!", result.Errors[0].ErrorMessage);
     }
 
     [Fact]
-    public async Task UpdateEmployeeSalary_SendNegativeSalary_Throws()
+    public async Task UpdateEmployeeSalary_SendNegativeSalary_ReturnsError()
     {
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<Exception>(async () =>
-            await _service.UpdateEmployeeSalary(1, -1000, CancellationToken.None)
-        );
-        Assert.Equal("Salary cannot be negative number. -1000", exception.Message);
+        // Act
+        var response = await _service.UpdateEmployeeSalary(1, -1000, CancellationToken.None);
+
+        // Assert
+        Assert.False(response.IsSuccess);
+        Assert.Single(response.Errors);
+        Assert.Equal("Salary cannot be negative number. -1000", response.Errors[0].ErrorMessage);
     }
 
     [Fact]

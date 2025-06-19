@@ -1,3 +1,4 @@
+using CommifyTaxCalculatorAPI.DTOs;
 using CommifyTaxCalculatorAPI.Models;
 
 public static class DataSeedHelpers

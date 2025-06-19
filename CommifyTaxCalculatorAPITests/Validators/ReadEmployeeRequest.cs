@@ -1,18 +1,18 @@
 using FluentValidation.TestHelper;
 
-public class ReadTaxBillRequestValidatorTests
+public class ReadEmployeeRequestValidatorTests
 {
-    private ReadTaxBillRequestValidator validator;
+    private ReadEmployeeRequestValidator validator;
 
-    public ReadTaxBillRequestValidatorTests()
+    public ReadEmployeeRequestValidatorTests()
     {
-        validator = new ReadTaxBillRequestValidator();
+        validator = new ReadEmployeeRequestValidator();
     }
 
     [Fact]
     public void Should_error_when_EmployeeId_is_empty()
     {
-        var model = new ReadTaxBillRequest() { };
+        var model = new ReadEmployeeRequest() { };
         var result = validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor(req => req.EmployeeId);
     }
@@ -20,7 +20,7 @@ public class ReadTaxBillRequestValidatorTests
     [Fact]
     public void Should_error_when_EmployeeId_is_less_than_zero()
     {
-        var model = new ReadTaxBillRequest() { EmployeeId = -1 };
+        var model = new ReadEmployeeRequest() { EmployeeId = -1 };
         var result = validator.TestValidate(model);
         result.ShouldHaveValidationErrorFor(req => req.EmployeeId);
     }

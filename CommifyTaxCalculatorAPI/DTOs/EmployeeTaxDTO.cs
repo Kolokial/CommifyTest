@@ -1,3 +1,5 @@
+namespace CommifyTaxCalculatorAPI.DTOs;
+
 public class EmployeeTaxDTO
 {
     public int EmployeeId { get; set; }

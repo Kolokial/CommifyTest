@@ -1,0 +1,22 @@
+.employee-details {
+  max-width: 90vw;
+  margin: auto;
+
+  table.employee-salary-data {
+    min-width: 300px;
+    th {
+      text-align: left;
+    }
+
+    td {
+      text-align: right;
+    }
+  }
+
+  .divider {
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+    border-top: 1px solid --mat-card-outlined-container-color;
+  }
+}

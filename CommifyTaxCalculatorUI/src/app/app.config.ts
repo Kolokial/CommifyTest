@@ -7,8 +7,6 @@ import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
 import {
-  HttpClient,
-  HttpHandler,
   provideHttpClient,
   withInterceptorsFromDi,
 } from '@angular/common/http';

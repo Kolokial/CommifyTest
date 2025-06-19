@@ -36,44 +36,26 @@ export class EmployeesListComponent implements OnInit {
     'employeeLastName',
     'employeeAnnualSalary',
   ];
-  public searchValue: Subject<string> = new Subject<string>();
+
   public length: number = 0;
   public pageSize: number = 4;
 
   constructor() {}
-
-  ngAfterViewInit() {}
 
   public ngOnInit() {
     this._employeeApi.getEmployees().subscribe((x) => {
       this.dataSource = new MatTableDataSource<Employee>(x.result);
       this.dataSource.paginator = this.paginator;
       this.length = Math.floor(x.result.length / this.pageSize);
-
-      this.dataSource.filterPredicate = (data: Employee, filter: string) => {
-        return (
-          data.employeeFirstName.includes(filter) ||
-          data.employeeLastName.includes(filter)
-        );
-      };
     });
-
-    this.searchValue.pipe(
-      debounceTime(500),
-      distinctUntilChanged(),
-      switchMap((term) => (this.dataSource.filter = term))
-    );
   }
 
-  public goToEmployeeDetailsScreen(employeeId: number) {
+  public goToEmployeeDetailsScreen(employeeId: number): void {
     this._router.navigate(['employee', employeeId]);
   }
 
-  public filterEmployeeList(searchValue: Event | null): void {
-    if (!searchValue) {
-      return;
-    }
-    console.log(searchValue);
-    this.searchValue.next((searchValue.target as HTMLInputElement).value);
+  public filterEmployeeList(event: Event): void {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 }

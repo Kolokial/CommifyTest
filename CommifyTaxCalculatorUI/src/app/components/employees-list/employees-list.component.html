@@ -1,11 +1,6 @@
 <mat-form-field>
   <mat-label>Search Employees</mat-label>
-  <input matInput type="text" (input)="filterEmployeeList($event)" />
-  @if (searchValue) {
-  <button matSuffix matIconButton aria-label="Clear">
-    <mat-icon>close</mat-icon>
-  </button>
-  }
+  <input matInput type="text" (keyup)="filterEmployeeList($event)" />
 </mat-form-field>
 
 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
