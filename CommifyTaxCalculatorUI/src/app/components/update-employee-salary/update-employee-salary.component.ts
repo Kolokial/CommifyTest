@@ -1,4 +1,4 @@
-import { Component, inject, model } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import {
   MAT_DIALOG_DATA,
   MatDialogActions,
@@ -46,6 +46,8 @@ export class UpdateEmployeeSalaryComponent {
   public readonly data = inject(MAT_DIALOG_DATA);
   public salaryFormControl = new FormControl(0, [
     this.getPositiveNumberValidator(),
+    Validators.min(0),
+    Validators.required,
   ]);
   public currentSalary: number = 0;
   public apiErrors: string[] = [];

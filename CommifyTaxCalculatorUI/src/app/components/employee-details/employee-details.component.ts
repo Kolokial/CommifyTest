@@ -12,7 +12,6 @@ import { Employee } from '../../types/data/Employee';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 import { ErrorResponse } from '../../types/responses/BaseResponse';
-import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-employee-details',
@@ -45,7 +44,7 @@ export class EmployeeDetailsComponent {
         this.employee = x.result;
       },
       error: (errors: ErrorResponse[]) => {
-        this.errors = errors;
+        this.errors.push(...errors);
       },
     });
 
@@ -55,9 +54,11 @@ export class EmployeeDetailsComponent {
   private fetchTaxData(employeeId: number): void {
     this._employeeService.getEmployeeTaxBill(Number(employeeId)).subscribe({
       next: (x) => {
-        this.taxData.push(...this.setTaxData(x.result));
+        this.taxData.push(...this.mapToEmployeeTaxData(x.result));
       },
-      error: (d) => {},
+      error: (errors: ErrorResponse[]) => {
+        this.errors.push(...errors);
+      },
     });
   }
 
@@ -78,7 +79,9 @@ export class EmployeeDetailsComponent {
     });
   }
 
-  private setTaxData(salaryData: EmployeeSalaryData): EmployeeTaxData[] {
+  private mapToEmployeeTaxData(
+    salaryData: EmployeeSalaryData
+  ): EmployeeTaxData[] {
     const data = [];
     data.push(
       ...[

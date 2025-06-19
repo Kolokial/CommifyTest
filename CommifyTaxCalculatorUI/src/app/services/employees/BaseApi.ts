@@ -1,7 +1,6 @@
 import {
   HttpClient,
   HttpErrorResponse,
-  HttpParameterCodec,
   HttpParams,
 } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
@@ -51,10 +50,10 @@ export abstract class BaseApi {
       .pipe(catchError(this.catchErrorWrapper));
   }
 
-  private cleanUpUrl(url: string): string {
+  protected cleanUpUrl(url: string): string {
     return url.startsWith('/') ? url.substring(1) : url;
   }
-  private catchErrorWrapper<T>(error: any, caught: Observable<T>) {
+  protected catchErrorWrapper<T>(error: any, caught: Observable<T>) {
     if (error?.error?.errors) {
       return throwError(() => error.error.errors as ErrorResponse);
     } else if (error?.error) {

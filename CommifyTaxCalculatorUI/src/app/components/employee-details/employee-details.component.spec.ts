@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-
 import { EmployeeDetailsComponent } from './employee-details.component';
 import { EmployeesService } from '../../services/employees/employees.service';
 import { ActivatedRoute } from '@angular/router';
@@ -10,6 +9,10 @@ describe('EmployeeDetailsComponent', () => {
   let component: EmployeeDetailsComponent;
   let fixture: ComponentFixture<EmployeeDetailsComponent>;
 
+  const fakeActivatedRoute = {
+    snapshot: { paramMap: { get: (key: string) => 1 } },
+  };
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [EmployeeDetailsComponent],
@@ -17,7 +20,7 @@ describe('EmployeeDetailsComponent', () => {
         EmployeesService,
         provideHttpClient(),
         provideHttpClientTesting(),
-        ActivatedRoute,
+        { provide: ActivatedRoute, useValue: fakeActivatedRoute },
       ],
     }).compileComponents();
 
